@@ -60,10 +60,9 @@ This folder contains comprehensive research for integrating the A2A (Agent-to-Ag
 - External agents via is_external flag
 
 ### Integration Approach
-- **Phase 1**: Expose Thenvoi agents as A2A servers (4-6 weeks)
-- **Phase 2**: Connect to external A2A agents (3-4 weeks)
-- **Phase 3**: Internal A2A communication (2-3 weeks)
-- **Phase 4**: Advanced features (4-6 weeks)
+- **Phase 1**: A2A Outbound - Thenvoi agents call external A2A agents (TBD)
+- **Phase 2**: A2A Inbound - External clients call Thenvoi agents (TBD)
+- **Phase 3**: Polish & Advanced - Error handling, caching, docs (TBD)
 
 ---
 

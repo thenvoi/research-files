@@ -2,356 +2,364 @@
 
 ## Overview
 
-This document provides a detailed implementation roadmap with specific tasks, dependencies, and acceptance criteria for each phase of the A2A integration.
+This document provides a simplified implementation plan for integrating A2A protocol with Thenvoi. The plan is organized in 3 phases, starting with the most practical deliverable first.
 
 ---
 
-## Phase 1: A2A Server (Expose Thenvoi Agents)
+## Why This Order?
 
-### Duration: 4-6 weeks
+**Phase 1 (Outbound) before Phase 2 (Inbound)**:
+- Outbound is simpler: we just need to call external A2A agents
+- Inbound is harder: we need to expose our agents, handle various request formats, streaming, etc.
+- Outbound gives immediate value: Thenvoi agents can start using external A2A agents right away
 
-### Milestone 1.1: Agent Card Infrastructure (Week 1-2)
+---
 
-#### Tasks
+## Phase 1: A2A Outbound (Thenvoi Calls External A2A Agents)
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 1.1.1 | Design Agent Card schema in Elixir | 2d | None |
-| 1.1.2 | Create Agent Card Generator module | 3d | 1.1.1 |
-| 1.1.3 | Add a2a_* fields to Agent schema | 1d | None |
-| 1.1.4 | Create migration for new fields | 0.5d | 1.1.3 |
-| 1.1.5 | Implement `/.well-known/agent.json` endpoint | 1d | 1.1.2 |
-| 1.1.6 | Add Agent Card caching | 1d | 1.1.5 |
-| 1.1.7 | Write unit tests for card generation | 2d | 1.1.2 |
+**Duration**: TBD
 
-#### Acceptance Criteria
+**Goal**: Thenvoi agents can call external A2A agents as a tool
 
-- [ ] GET `/a2a/agents/{id}/.well-known/agent.json` returns valid A2A Agent Card
-- [ ] Agent Card includes name, description, skills (from tools), capabilities
-- [ ] Agent Card validates against A2A JSON schema
-- [ ] Caching reduces database queries by 90%+
+### What We're Building
 
-### Milestone 1.2: A2A Request Handling (Week 2-3)
+When a Thenvoi agent needs to use an external A2A agent, it will:
+1. Look up the agent's capabilities (fetch Agent Card)
+2. Send a message using A2A protocol
+3. Get the response back
 
-#### Tasks
+### Key Deliverables
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 1.2.1 | Create A2A Router module | 2d | None |
-| 1.2.2 | Implement JSON-RPC request parsing | 2d | 1.2.1 |
-| 1.2.3 | Create Message Adapter (A2A → Thenvoi) | 3d | None |
-| 1.2.4 | Create Task Adapter (Execution → Task) | 2d | None |
-| 1.2.5 | Implement `message/send` endpoint | 3d | 1.2.2, 1.2.3 |
-| 1.2.6 | Implement `tasks/get` endpoint | 1d | 1.2.4 |
-| 1.2.7 | Add A2A authentication middleware | 2d | 1.2.1 |
-| 1.2.8 | Write integration tests | 3d | 1.2.5, 1.2.6 |
+#### 1.1 Schema Change
 
-#### Acceptance Criteria
+Add a field to know where external A2A agents live:
 
-- [ ] POST `/a2a/agents/{id}/message/send` creates execution and returns task
-- [ ] Blocking mode waits for completion
-- [ ] Non-blocking mode returns immediately with task ID
-- [ ] GET `/a2a/agents/{id}/tasks/{task_id}` returns task status
-- [ ] Authentication required for all A2A endpoints
+```elixir
+# Agent schema
+%Agent{
+  is_external: true,
+  a2a_remote_url: "http://localhost:5050"  # NEW FIELD
+}
+```
 
-### Milestone 1.3: Streaming Support (Week 3-4)
+**Decision logic**:
+- `a2a_remote_url` is set → use A2A protocol to call this agent
+- `a2a_remote_url` is nil + `is_external` → agent connects via WebSocket (current behavior)
+- `is_external` is false → internal agent, process locally
 
-#### Tasks
+#### 1.2 A2A Client Module
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 1.3.1 | Research SSE in Phoenix | 1d | None |
-| 1.3.2 | Implement SSE connection handler | 2d | 1.3.1 |
-| 1.3.3 | Create TaskStatusUpdateEvent generator | 2d | 1.2.4 |
-| 1.3.4 | Create TaskArtifactUpdateEvent generator | 2d | 1.2.4 |
-| 1.3.5 | Implement `message/stream` endpoint | 3d | 1.3.2, 1.3.3 |
-| 1.3.6 | Handle connection lifecycle | 1d | 1.3.5 |
-| 1.3.7 | Write streaming tests | 2d | 1.3.5 |
+A module that can:
+- Fetch Agent Card from `{url}/.well-known/agent.json`
+- Send messages to `{url}/message/send`
+- Handle responses
 
-#### Acceptance Criteria
+```elixir
+# Pseudocode
+defmodule ThenvoiCom.A2A.Client do
+  def fetch_agent_card(url) do
+    # GET {url}/.well-known/agent.json
+  end
 
-- [ ] POST `/a2a/agents/{id}/message/stream` returns SSE connection
-- [ ] Status updates sent as events during processing
-- [ ] Artifact updates sent as partial results
-- [ ] Connection properly closed on completion
-- [ ] Handles client disconnection gracefully
+  def send_message(url, message) do
+    # POST {url}/message/send with A2A-formatted message
+  end
+end
+```
 
-### Milestone 1.4: Integration & Polish (Week 4-6)
+#### 1.3 Router Update
 
-#### Tasks
+Update the agent message router to check if we should use A2A:
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 1.4.1 | Add error handling and mapping | 2d | 1.2.5 |
-| 1.4.2 | Implement rate limiting | 1d | 1.2.7 |
-| 1.4.3 | Add request/response logging | 1d | 1.2.1 |
-| 1.4.4 | Create A2A admin UI toggle | 2d | 1.1.3 |
-| 1.4.5 | Write API documentation | 3d | All |
-| 1.4.6 | Compatibility testing with A2A SDK | 3d | All |
-| 1.4.7 | Performance testing | 2d | All |
-| 1.4.8 | Security review | 2d | All |
+```elixir
+def route_to_agent(agent, message) do
+  cond do
+    # External A2A agent - call via HTTP
+    agent.a2a_remote_url != nil ->
+      A2AClient.send_message(agent.a2a_remote_url, message)
 
-#### Acceptance Criteria
+    # External WebSocket agent - do nothing, they're listening
+    agent.is_external ->
+      :noop
 
-- [ ] Errors mapped to A2A error format
-- [ ] Rate limiting prevents abuse
-- [ ] All requests logged for debugging
-- [ ] UI allows enabling/disabling A2A per agent
-- [ ] Documentation complete and accurate
+    # Internal agent - process locally
+    true ->
+      Executor.process(agent, message)
+  end
+end
+```
+
+#### 1.4 Message Adapter
+
+Convert Thenvoi messages to A2A format and back:
+
+```elixir
+# Thenvoi → A2A
+%{content: "Hello", sender_type: "User"}
+→
+%{role: "user", parts: [%{type: "text", text: "Hello"}]}
+
+# A2A → Thenvoi
+%{role: "agent", parts: [%{type: "text", text: "Hi!"}]}
+→
+%{content: "Hi!", sender_type: "Agent"}
+```
+
+### Tasks
+
+| Task | Description |
+|------|-------------|
+| Add `a2a_remote_url` field to Agent schema | Database migration |
+| Create A2A Client module | HTTP client for A2A protocol |
+| Create Message Adapter | Convert message formats |
+| Update router logic | Check `a2a_remote_url` before routing |
+| Add Agent Card caching | Don't fetch card every time |
+| Add UI field for A2A URL | Let users configure external A2A agents |
+| Write tests | Unit and integration tests |
+
+### Success Criteria
+
+- [ ] Can add external A2A agent URL in admin UI
+- [ ] Thenvoi agent can send message to external A2A agent
+- [ ] Response from A2A agent appears in chat
+- [ ] Works with official A2A SDK samples
+
+---
+
+## Phase 2: A2A Inbound (External Clients Call Thenvoi Agents)
+
+**Duration**: TBD
+
+**Goal**: External A2A clients can discover and call Thenvoi agents
+
+### What We're Building
+
+When an external A2A client wants to use a Thenvoi agent:
+1. Client fetches Agent Card from Thenvoi
+2. Client sends message via A2A protocol
+3. Thenvoi processes and returns response
+
+### Key Deliverables
+
+#### 2.1 Agent Card Generator
+
+Generate A2A Agent Card from Thenvoi Agent data:
+
+```json
+GET /a2a/agents/{id}/.well-known/agent.json
+
+{
+  "name": "Research Agent",
+  "description": "Deep research on any topic",
+  "url": "https://app.thenvoi.com/a2a/agents/{id}/",
+  "version": "1.0.0",
+  "protocolVersion": "0.3",
+  "capabilities": {
+    "streaming": true
+  },
+  "skills": [
+    {
+      "id": "research",
+      "name": "Research",
+      "description": "Research any topic deeply"
+    }
+  ]
+}
+```
+
+#### 2.2 A2A API Endpoints
+
+New endpoints for A2A protocol:
+
+```
+POST /a2a/agents/{id}/message/send     # Send message, get response
+POST /a2a/agents/{id}/message/stream   # Send message, get SSE stream
+GET  /a2a/agents/{id}/tasks/{task_id}  # Get task status
+```
+
+#### 2.3 Task Adapter
+
+Map A2A Task to Thenvoi AgentExecution:
+
+| A2A Task State | Thenvoi Execution Status |
+|----------------|--------------------------|
+| SUBMITTED | new |
+| WORKING | processing |
+| INPUT_REQUIRED | waiting |
+| COMPLETED | completed |
+| FAILED | failed |
+| CANCELLED | cancelled (new) |
+
+Note: A2A Task is per-request, but we create an AgentExecution for tracking.
+
+#### 2.4 SSE Streaming
+
+For long-running tasks, stream updates via Server-Sent Events:
+
+```
+Client: POST /a2a/agents/{id}/message/stream
+
+Server: event: status
+        data: {"state": "working"}
+
+Server: event: artifact
+        data: {"parts": [{"text": "Partial result..."}]}
+
+Server: event: status
+        data: {"state": "completed"}
+```
+
+### Tasks
+
+| Task | Description |
+|------|-------------|
+| Create Agent Card Generator | Build card from Agent schema |
+| Add `/.well-known/agent.json` endpoint | Discovery endpoint |
+| Add `a2a_enabled` flag to Agent | Let users opt-in per agent |
+| Create A2A Router/Controller | Handle incoming A2A requests |
+| Create Task Adapter | Map Execution ↔ Task |
+| Implement `/message/send` endpoint | Synchronous message handling |
+| Implement `/message/stream` endpoint | SSE streaming |
+| Implement `/tasks/{id}` endpoint | Task status lookup |
+| Add authentication | API key validation |
+| Write tests | Unit and integration tests |
+| Documentation | How to use Thenvoi agents via A2A |
+
+### Success Criteria
+
+- [ ] External A2A client can fetch Agent Card
+- [ ] External client can send message and get response
+- [ ] Streaming works for long tasks
 - [ ] Works with official A2A Python SDK
-- [ ] Latency < 500ms for 95th percentile
 
 ---
 
-## Phase 2: A2A Client (Connect to External Agents)
+## Phase 3: Polish & Advanced Features
 
-### Duration: 3-4 weeks
+**Duration**: TBD
 
-### Milestone 2.1: Client Infrastructure (Week 1-2)
+**Goal**: Production-ready A2A integration
 
-#### Tasks
+### Key Deliverables
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 2.1.1 | Design A2A Client Manager GenServer | 2d | None |
-| 2.1.2 | Implement agent discovery (fetch card) | 2d | 2.1.1 |
-| 2.1.3 | Create Message Adapter (Thenvoi → A2A) | 2d | None |
-| 2.1.4 | Implement HTTP client for A2A requests | 2d | 2.1.1 |
-| 2.1.5 | Add connection pooling | 1d | 2.1.4 |
-| 2.1.6 | Implement card caching | 1d | 2.1.2 |
-| 2.1.7 | Write unit tests | 2d | 2.1.2, 2.1.4 |
+#### 3.1 Error Handling & Reliability
 
-#### Acceptance Criteria
+- Proper error mapping to A2A error format
+- Retry logic for external agent calls
+- Timeout configuration
+- Circuit breaker for failing agents
 
-- [ ] Can discover and cache external agent cards
-- [ ] HTTP client handles timeouts and retries
-- [ ] Connection pooling reduces overhead
-- [ ] Card cache with configurable TTL
+#### 3.2 Caching & Performance
 
-### Milestone 2.2: Remote Agent Tool (Week 2-3)
+- Agent Card caching with TTL
+- Connection pooling for outbound calls
+- Response time optimization
 
-#### Tasks
+#### 3.3 Push Notifications (Optional)
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 2.2.1 | Create RemoteA2AAgentService | 3d | 2.1.4 |
-| 2.2.2 | Define tool schema (agent_url, task, etc.) | 1d | 2.2.1 |
-| 2.2.3 | Integrate with ServiceRegistry | 1d | 2.2.1 |
-| 2.2.4 | Handle async task completion | 2d | 2.2.1 |
-| 2.2.5 | Add external agent to Agent schema | 1d | None |
-| 2.2.6 | Create admin UI for external agents | 2d | 2.2.5 |
-| 2.2.7 | Write integration tests | 2d | 2.2.1 |
+For long-running tasks, callback to client when done:
 
-#### Acceptance Criteria
+```json
+// Client provides callback URL
+{
+  "pushNotificationConfig": {
+    "url": "https://client.com/webhook",
+    "authentication": {...}
+  }
+}
 
-- [ ] Agents can call external A2A agents via tool
-- [ ] Results incorporated into execution
-- [ ] Async completion handled correctly
-- [ ] UI allows adding external A2A agents
+// Thenvoi calls back when task completes
+POST https://client.com/webhook
+{
+  "taskId": "123",
+  "state": "completed",
+  "result": {...}
+}
+```
 
-### Milestone 2.3: Integration (Week 3-4)
+#### 3.4 Documentation & Examples
 
-#### Tasks
+- API documentation
+- Integration guide
+- Example implementations
 
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 2.3.1 | Integrate with Executor | 2d | 2.2.1 |
-| 2.3.2 | Handle external agent errors | 1d | 2.3.1 |
-| 2.3.3 | Add timeout configuration | 1d | 2.3.1 |
-| 2.3.4 | Test with A2A SDK samples | 2d | All |
-| 2.3.5 | Documentation | 2d | All |
-| 2.3.6 | Security review | 1d | All |
+### Tasks
 
-#### Acceptance Criteria
+| Task | Description |
+|------|-------------|
+| Add error handling | Map errors to A2A format |
+| Add retry logic | For external agent calls |
+| Add rate limiting | Prevent abuse |
+| Implement caching | Agent Cards, connections |
+| Add push notifications | Webhook callbacks (optional) |
+| Performance testing | Ensure <500ms latency |
+| Security review | Authentication, data exposure |
+| Write documentation | API docs, integration guide |
+| Create examples | Sample A2A integrations |
 
-- [ ] End-to-end flow works: Thenvoi agent → External A2A agent → Response
-- [ ] Errors from external agents handled gracefully
-- [ ] Configurable timeouts per agent
-- [ ] Works with official A2A samples
+### Success Criteria
 
----
-
-## Phase 3: Internal A2A Communication
-
-### Duration: 2-3 weeks
-
-### Milestone 3.1: Internal Routing (Week 1-2)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 3.1.1 | Design internal A2A routing | 2d | Phase 1, 2 |
-| 3.1.2 | Implement local A2A transport | 2d | 3.1.1 |
-| 3.1.3 | Optimize for in-process calls | 1d | 3.1.2 |
-| 3.1.4 | Update handoff logic to use A2A | 2d | 3.1.2 |
-| 3.1.5 | Add feature flag for internal A2A | 1d | 3.1.2 |
-| 3.1.6 | Write tests | 2d | 3.1.4 |
-
-#### Acceptance Criteria
-
-- [ ] Agent-to-agent handoffs use A2A protocol
-- [ ] Local transport optimized (no HTTP overhead)
-- [ ] Feature flag allows gradual rollout
-- [ ] No performance regression
-
-### Milestone 3.2: Migration & Polish (Week 2-3)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 3.2.1 | Ensure protocol compliance | 2d | 3.1.4 |
-| 3.2.2 | Add monitoring/metrics | 1d | 3.1.4 |
-| 3.2.3 | Update documentation | 1d | All |
-| 3.2.4 | Performance testing | 1d | All |
-| 3.2.5 | Gradual rollout | 2d | 3.1.5 |
-
-#### Acceptance Criteria
-
-- [ ] All internal A2A messages protocol-compliant
-- [ ] Metrics for A2A request volume/latency
-- [ ] Documentation updated
-- [ ] Performance equivalent or better than before
+- [ ] Error messages follow A2A spec
+- [ ] Latency < 500ms p95
+- [ ] Documentation complete
+- [ ] Example integrations working
 
 ---
 
-## Phase 4: Advanced Features
+## Summary
 
-### Duration: 4-6 weeks
-
-### Milestone 4.1: Push Notifications (Week 1-2)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 4.1.1 | Design push notification system | 2d | Phase 1 |
-| 4.1.2 | Implement webhook delivery | 2d | 4.1.1 |
-| 4.1.3 | Add retry logic | 1d | 4.1.2 |
-| 4.1.4 | Store callback URLs in execution | 1d | 4.1.1 |
-| 4.1.5 | Write tests | 2d | 4.1.2 |
-
-### Milestone 4.2: Security Enhancements (Week 2-3)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 4.2.1 | Implement Agent Card signing | 3d | None |
-| 4.2.2 | Create Extended Agent Cards | 2d | 4.2.1 |
-| 4.2.3 | Add OAuth 2.0 support | 3d | None |
-| 4.2.4 | Security testing | 2d | All |
-
-### Milestone 4.3: Protocol Extensions (Week 3-4)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 4.3.1 | Research gRPC binding | 2d | None |
-| 4.3.2 | Implement gRPC server (optional) | 5d | 4.3.1 |
-| 4.3.3 | Agent registry integration | 3d | Phase 1 |
-| 4.3.4 | Documentation | 2d | All |
-
-### Milestone 4.4: Release (Week 5-6)
-
-#### Tasks
-
-| Task | Description | Effort | Dependencies |
-|------|-------------|--------|--------------|
-| 4.4.1 | Full system testing | 3d | All |
-| 4.4.2 | Performance optimization | 2d | 4.4.1 |
-| 4.4.3 | Documentation finalization | 2d | All |
-| 4.4.4 | Release preparation | 2d | All |
+| Phase | What | Why | Duration |
+|-------|------|-----|----------|
+| 1. Outbound | Thenvoi agents call external A2A agents | Simplest, immediate value | TBD |
+| 2. Inbound | External clients call Thenvoi agents | Ecosystem participation | TBD |
+| 3. Polish | Error handling, caching, docs | Production readiness | TBD |
 
 ---
 
-## Dependency Graph
+## Key Technical Decisions
 
-```mermaid
-graph LR
-    subgraph "Phase 1: A2A Server"
-        P1M1["1.1 Agent Card"]
-        P1M2["1.2 Request Handling"]
-        P1M3["1.3 Streaming"]
-        P1M4["1.4 Integration"]
-    end
+### Routing Logic
 
-    subgraph "Phase 2: A2A Client"
-        P2M1["2.1 Client Infra"]
-        P2M2["2.2 Remote Tool"]
-        P2M3["2.3 Integration"]
-    end
+All agent-to-agent communication goes through Thenvoi (hub model):
 
-    subgraph "Phase 3: Internal A2A"
-        P3M1["3.1 Routing"]
-        P3M2["3.2 Migration"]
-    end
+```
+Agent A → Thenvoi Platform → Agent B
+              ↓
+        Check a2a_remote_url
+              ↓
+    ┌─────────┴─────────┐
+    ↓                   ↓
+  A2A HTTP          WebSocket
+(if url set)       (if nil)
+```
 
-    subgraph "Phase 4: Advanced"
-        P4M1["4.1 Push Notifications"]
-        P4M2["4.2 Security"]
-        P4M3["4.3 Extensions"]
-        P4M4["4.4 Release"]
-    end
+### When to Use A2A vs WebSocket
 
-    P1M1 --> P1M2
-    P1M2 --> P1M3
-    P1M3 --> P1M4
+| Scenario | Protocol | Why |
+|----------|----------|-----|
+| External A2A agent | A2A (HTTP) | Agent has own URL, stateless |
+| External SDK agent | WebSocket | Agent connects to us, maintains connection |
+| Internal agent | Local call | No network needed |
 
-    P1M4 --> P2M1
-    P2M1 --> P2M2
-    P2M2 --> P2M3
+### Schema Changes
 
-    P1M4 --> P3M1
-    P2M3 --> P3M1
-    P3M1 --> P3M2
+```sql
+-- Phase 1
+ALTER TABLE agents ADD COLUMN a2a_remote_url TEXT;
 
-    P1M4 --> P4M1
-    P3M2 --> P4M2
-    P4M2 --> P4M3
-    P4M3 --> P4M4
+-- Phase 2
+ALTER TABLE agents ADD COLUMN a2a_enabled BOOLEAN DEFAULT false;
+ALTER TABLE agents ADD COLUMN a2a_skills JSONB DEFAULT '[]';
+ALTER TABLE agent_executions ADD COLUMN a2a_task_id TEXT;
 ```
 
 ---
 
-## Risk Register
+## Risks
 
-| Risk | Phase | Probability | Impact | Mitigation |
-|------|-------|-------------|--------|------------|
-| A2A spec changes | All | Medium | High | Abstract layer, version support |
-| Performance issues | 1, 3 | Low | Medium | Early benchmarking, caching |
-| Security vulnerabilities | All | Medium | High | Security review each phase |
-| Scope creep | All | High | Medium | Strict phase boundaries |
-| Integration complexity | 2, 3 | Medium | Medium | Prototype first |
-
----
-
-## Key Milestones Summary
-
-| Milestone | Target Date | Key Deliverable |
-|-----------|-------------|-----------------|
-| Phase 1 Complete | Week 6 | External A2A clients can call Thenvoi agents |
-| Phase 2 Complete | Week 10 | Thenvoi agents can call external A2A agents |
-| Phase 3 Complete | Week 13 | Internal communication uses A2A |
-| Phase 4 Complete | Week 19 | Full A2A ecosystem participation |
-
----
-
-## Team Requirements
-
-### Phase 1-2
-- 2 Backend Engineers (Elixir)
-- 0.5 Frontend Engineer (LiveView)
-- 1 QA Engineer
-
-### Phase 3-4
-- 1.5 Backend Engineers
-- 0.5 Frontend Engineer
-- 0.5 QA Engineer
-
-### Throughout
-- Technical Lead (oversight)
-- Product Manager (prioritization)
-- Security Engineer (reviews)
+| Risk | Mitigation |
+|------|------------|
+| A2A protocol changes | Abstract A2A layer, easy to update |
+| Performance overhead | Caching, connection pooling |
+| Security exposure | API key auth, allow-lists |
+| External agent failures | Timeouts, circuit breaker |

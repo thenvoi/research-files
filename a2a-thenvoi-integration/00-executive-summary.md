@@ -130,13 +130,13 @@ AgentExecution:
 
 ### Entity Mapping
 
-| A2A | Thenvoi | Notes |
-|-----|---------|-------|
-| A2A Server | Agent | Each agent = A2A endpoint |
-| Agent Card | Agent + metadata | Auto-generate |
-| Task | AgentExecution | 1:1 mapping |
-| Message | ChatMessage | Role-based |
-| Skill | Tool | Derive from agent tools |
+| A2A        | Thenvoi          | Notes                                         |
+| ---------- | ---------------- | --------------------------------------------- |
+| A2A Server | Agent            | Each agent = A2A endpoint                     |
+| Agent Card | Agent + metadata | Auto-generate                                 |
+| Task       | AgentExecution   | Task is per-request, Execution is per-session |
+| Message    | ChatMessage      | Role-based                                    |
+| Skill      | Tool             | Derive from agent tools                       |
 
 ### Status Mapping
 
@@ -154,64 +154,76 @@ AgentExecution:
 
 ## 6. Implementation Phases
 
-### Phase 1: A2A Server (4-6 weeks)
+### Why This Order?
 
-**Goal**: External A2A clients can call Thenvoi agents
+**Phase 1 (Outbound) before Phase 2 (Inbound)**:
+- Outbound is simpler: we just need to call external A2A agents
+- Inbound is harder: we need to expose our agents, handle various request formats, streaming, etc.
+- Outbound gives immediate value: Thenvoi agents can start using external A2A agents right away
 
-**Deliverables**:
-- [ ] Agent Card Generator
-- [ ] A2A API endpoints (`/a2a/agents/{id}/...`)
-- [ ] Message Adapter (A2A → Thenvoi)
-- [ ] Task Adapter (Execution → Task)
-- [ ] SSE streaming support
-- [ ] Documentation
-
-**Success Criteria**:
-- External A2A SDK can discover Thenvoi agents
-- Messages processed and responses returned
-- Streaming works for long-running tasks
-
-### Phase 2: A2A Client (3-4 weeks)
+### Phase 1: A2A Outbound (TBD)
 
 **Goal**: Thenvoi agents can call external A2A agents
 
-**Deliverables**:
-- [ ] A2A Client Manager
-- [ ] Remote Agent Tool (call_remote_agent)
-- [ ] Agent discovery and caching
-- [ ] Message Adapter (Thenvoi → A2A)
-- [ ] Error handling and retries
+**What we're building**: When a Thenvoi agent needs to use an external A2A agent, it calls out via HTTP.
+
+**Key Deliverables**:
+- [ ] Add `a2a_remote_url` field to Agent schema
+- [ ] A2A Client module (fetch cards, send messages)
+- [ ] Message Adapter (Thenvoi ↔ A2A format)
+- [ ] Router update (check `a2a_remote_url` before routing)
+- [ ] Agent Card caching
+- [ ] UI field for A2A URL
+
+**How routing works**:
+```
+if agent.a2a_remote_url != nil → use A2A (HTTP)
+if agent.is_external → use WebSocket (current)
+else → process locally
+```
 
 **Success Criteria**:
-- Thenvoi agent can call external A2A agent via tool
-- Results returned and incorporated into execution
+- Can configure external A2A agent URL in admin
+- Thenvoi agent can call external A2A agent
+- Response appears in chat
 - Works with official A2A SDK samples
 
-### Phase 3: Internal A2A (2-3 weeks)
+### Phase 2: A2A Inbound (TBD)
 
-**Goal**: Internal agent-to-agent uses A2A
+**Goal**: External A2A clients can discover and call Thenvoi agents
 
-**Deliverables**:
-- [ ] Internal A2A routing
-- [ ] Optimized local transport
-- [ ] Full protocol compliance
-- [ ] Migration path for existing flows
+**What we're building**: External clients can fetch our Agent Cards and send messages via A2A protocol.
+
+**Key Deliverables**:
+- [ ] Agent Card Generator (build from Agent schema)
+- [ ] `/.well-known/agent.json` endpoint
+- [ ] A2A API endpoints (`/a2a/agents/{id}/message/send`, etc.)
+- [ ] Task Adapter (Execution ↔ Task)
+- [ ] SSE streaming
+- [ ] Authentication
+- [ ] Documentation
 
 **Success Criteria**:
-- Agent handoffs use A2A internally
-- No performance regression
-- Protocol-compliant messages
+- External A2A client can fetch Agent Card
+- External client can send message and get response
+- Streaming works for long tasks
+- Works with official A2A Python SDK
 
-### Phase 4: Advanced Features (4-6 weeks)
+### Phase 3: Polish & Advanced (TBD)
 
-**Goal**: Full ecosystem participation
+**Goal**: Production-ready A2A integration
 
-**Deliverables**:
-- [ ] Push notifications
-- [ ] Agent Card signing
-- [ ] Extended Agent Cards
-- [ ] gRPC binding (optional)
-- [ ] Agent registry integration
+**Key Deliverables**:
+- [ ] Error handling (map to A2A format)
+- [ ] Retry logic, timeouts, circuit breaker
+- [ ] Caching & performance optimization
+- [ ] Push notifications (optional)
+- [ ] Documentation & examples
+
+**Success Criteria**:
+- Error messages follow A2A spec
+- Latency < 500ms p95
+- Documentation complete
 
 ---
 
@@ -365,14 +377,13 @@ ALTER TABLE agent_executions ADD COLUMN a2a_callback_url TEXT;
 
 ## 13. Resource Estimates
 
-| Phase | Duration | Backend | Frontend | QA |
-|-------|----------|---------|----------|-----|
-| Phase 1 | 4-6 weeks | 2 devs | 0.5 dev | 1 dev |
-| Phase 2 | 3-4 weeks | 1.5 devs | 0 | 0.5 dev |
-| Phase 3 | 2-3 weeks | 1 dev | 0 | 0.5 dev |
-| Phase 4 | 4-6 weeks | 1.5 devs | 0.5 dev | 1 dev |
+| Phase | Duration |
+|-------|----------|
+| Phase 1: A2A Outbound | TBD |
+| Phase 2: A2A Inbound | TBD |
+| Phase 3: Polish & Advanced | TBD |
 
-**Total**: ~15-20 weeks with dedicated team
+**Total**: TBD
 
 ---
 
