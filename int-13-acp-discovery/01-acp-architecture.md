@@ -251,21 +251,21 @@ The protocol is actively evolving through RFDs (Requests for Dialog).
 
 **RFD Index:** [agentclientprotocol.com/rfds](https://agentclientprotocol.com/rfds)
 
-| RFD | Status | Relevance to Thenvoi | Links |
-|-----|--------|---------------------|-------|
-| Proxy Chains | Draft | **High** - Multi-agent architecture | [Docs](https://agentclientprotocol.com/rfds/proxy-chains) |
-| Agent Registry | Draft | **High** - Agent discovery | [Docs](https://agentclientprotocol.com/rfds/acp-agent-registry) |
-| Authentication | Draft | Medium - Enterprise features | [Docs](https://agentclientprotocol.com/rfds/authentication) / [PR #330](https://github.com/agentclientprotocol/agent-client-protocol/pull/330) |
-| Session List | Draft | Medium - State handling | [Docs](https://agentclientprotocol.com/rfds/session-list) |
-| Session Config Options | Draft | Medium - State handling | [Docs](https://agentclientprotocol.com/rfds/session-config-options) |
-| Session Fork | Draft | Medium - State handling | [Docs](https://agentclientprotocol.com/rfds/session-fork) |
-| Session Resume | Draft | Medium - State handling | [Docs](https://agentclientprotocol.com/rfds/session-resume) |
-| Request Cancellation | Draft | Medium - UX | [Docs](https://agentclientprotocol.com/rfds/request-cancellation) |
-| Next Edit Suggestions | Draft | Low - IDE feature | [PR #325](https://github.com/agentclientprotocol/agent-client-protocol/pull/325) |
-| Agent-guided Selection | Draft | Medium - UX patterns | [PR #340](https://github.com/agentclientprotocol/agent-client-protocol/pull/340) |
-| Symposium (Multi-agent Proxy) | Draft | **High** - Multi-agent | [PR #359](https://github.com/agentclientprotocol/agent-client-protocol/pull/359) |
-| Message ID | Draft | Low - Protocol feature | [PR #244](https://github.com/agentclientprotocol/agent-client-protocol/pull/244) |
-| Telemetry Export | Draft | Low - Observability | [Docs](https://agentclientprotocol.com/rfds/agent-telemetry-export) |
+| RFD                           | Status | Relevance to Thenvoi                | Links                                                                                                                                          |
+| ----------------------------- | ------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proxy Chains                  | Draft  | **High** - Multi-agent architecture | [Docs](https://agentclientprotocol.com/rfds/proxy-chains)                                                                                      |
+| Agent Registry                | Draft  | **High** - Agent discovery          | [Docs](https://agentclientprotocol.com/rfds/acp-agent-registry)                                                                                |
+| Authentication                | Draft  | Medium - Enterprise features        | [Docs](https://agentclientprotocol.com/rfds/authentication) / [PR #330](https://github.com/agentclientprotocol/agent-client-protocol/pull/330) |
+| Session List                  | Draft  | Medium - State handling             | [Docs](https://agentclientprotocol.com/rfds/session-list)                                                                                      |
+| Session Config Options        | Draft  | Medium - State handling             | [Docs](https://agentclientprotocol.com/rfds/session-config-options)                                                                            |
+| Session Fork                  | Draft  | Medium - State handling             | [Docs](https://agentclientprotocol.com/rfds/session-fork)                                                                                      |
+| Session Resume                | Draft  | Medium - State handling             | [Docs](https://agentclientprotocol.com/rfds/session-resume)                                                                                    |
+| Request Cancellation          | Draft  | Medium - UX                         | [Docs](https://agentclientprotocol.com/rfds/request-cancellation)                                                                              |
+| Next Edit Suggestions         | Draft  | Low - IDE feature                   | [PR #325](https://github.com/agentclientprotocol/agent-client-protocol/pull/325)                                                               |
+| Agent-guided Selection        | Draft  | Medium - UX patterns                | [PR #340](https://github.com/agentclientprotocol/agent-client-protocol/pull/340)                                                               |
+| Symposium (Multi-agent Proxy) | Draft  | **High** - Multi-agent              | [PR #359](https://github.com/agentclientprotocol/agent-client-protocol/pull/359)                                                               |
+| Message ID                    | Draft  | Low - Protocol feature              | [PR #244](https://github.com/agentclientprotocol/agent-client-protocol/pull/244)                                                               |
+| Telemetry Export              | Draft  | Low - Observability                 | [Docs](https://agentclientprotocol.com/rfds/agent-telemetry-export)                                                                            |
 
 **Completed RFDs:**
 

@@ -78,7 +78,7 @@
 
 ## Recommended Next Steps
 
-### Immediate (Next Sprint)
+### Phase 1: Prototype
 
 1. **Prototype ACP Agent**
    - Use Python SDK (`agent-client-protocol`)
@@ -91,7 +91,7 @@
    - Authentication setup
    - Troubleshooting FAQ
 
-### Short-Term (1-2 Sprints)
+### Phase 2: Streaming & Tools
 
 3. **Add Streaming Support**
    - Bridge Phoenix Channels to ACP `session/update`
@@ -103,7 +103,7 @@
    - Session modes for persistent selection
    - Smart routing (optional)
 
-### Medium-Term (3-4 Sprints)
+### Phase 3: Distribution & Enterprise
 
 5. **Distribution**
    - Package as Zed extension
@@ -152,6 +152,7 @@ These require human/product judgment:
 | [05-thenvoi-as-acp-agent.md](./05-thenvoi-as-acp-agent.md) | Thenvoi implementation approach |
 | [06-developer-experience.md](./06-developer-experience.md) | DX analysis and recommendations |
 | [07-security-permissions.md](./07-security-permissions.md) | Security model and enterprise features |
+| [08-integration-roadmap.md](./08-integration-roadmap.md) | Decision-ready integration path |
 
 ---
 

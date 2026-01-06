@@ -55,6 +55,7 @@ Custom agents are configured in Zed's `settings.json`:
 ```
 
 **Configuration Options:**
+
 | Field | Purpose |
 |-------|---------|
 | `type` | Must be "custom" for custom agents |
@@ -109,6 +110,7 @@ uv add agent-client-protocol
 ```
 
 **Key Features:**
+
 | Feature | Description |
 |---------|-------------|
 | **Pydantic Models** | Type-safe ACP schema in `acp.schema` |

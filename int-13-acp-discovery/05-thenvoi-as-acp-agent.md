@@ -22,6 +22,7 @@ Thenvoi's existing architecture maps well to ACP concepts:
 | **is_external** | N/A | Could route to ACP vs internal |
 
 **Data Flow:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    ACP Client (Editor)                       │
@@ -50,6 +51,7 @@ Thenvoi's existing architecture maps well to ACP concepts:
 ### 2. Value Proposition
 
 **For ACP Users:**
+
 | Benefit | Description |
 |---------|-------------|
 | **Multi-Agent Access** | Choose from multiple Thenvoi agents within one editor |
@@ -59,6 +61,7 @@ Thenvoi's existing architecture maps well to ACP concepts:
 | **Enterprise Features** | Multi-tenant, auth, audit (existing platform features) |
 
 **For Thenvoi:**
+
 | Benefit | Description |
 |---------|-------------|
 | **Distribution** | Reach any ACP-compatible editor user |
@@ -238,19 +241,19 @@ async def handle_initialize(self, request: InitializeRequest) -> InitializeRespo
 
 ### 5. Mapping ACP Methods to Thenvoi
 
-| ACP Method | Thenvoi Implementation |
-|------------|----------------------|
-| `initialize` | Return capabilities, connect client |
-| `authenticate` | Validate THENVOI_API_KEY |
-| `session/new` | Create AgentExecution |
-| `session/load` | Load existing AgentExecution |
-| `session/prompt` | Send message, get response |
-| `session/cancel` | Cancel AgentExecution |
-| `session/update` | Stream via Phoenix Channels → ACP notifications |
-| `fs/read_text_file` | Proxy to MCP or deny |
-| `fs/write_text_file` | Proxy to MCP with permission |
-| `terminal/*` | Not supported initially |
-| `session/request_permission` | Map to Thenvoi permission system |
+| ACP Method                   | Thenvoi Implementation                          |
+| ---------------------------- | ----------------------------------------------- |
+| `initialize`                 | Return capabilities, connect client             |
+| `authenticate`               | Validate THENVOI_API_KEY                        |
+| `session/new`                | Create AgentExecution                           |
+| `session/load`               | Load existing AgentExecution                    |
+| `session/prompt`             | Send message, get response                      |
+| `session/cancel`             | Cancel AgentExecution                           |
+| `session/update`             | Stream via Phoenix Channels → ACP notifications |
+| `fs/read_text_file`          | Proxy to MCP or deny                            |
+| `fs/write_text_file`         | Proxy to MCP with permission                    |
+| `terminal/*`                 | Not supported initially                         |
+| `session/request_permission` | Map to Thenvoi permission system                |
 
 ### 6. Streaming Integration
 
@@ -359,25 +362,25 @@ Thenvoi would be **first multi-agent orchestration platform with native ACP supp
 
 ### Recommended Roadmap
 
-**Phase 1: Prototype (1-2 sprints)**
+**Phase 1: Prototype**
 - Implement basic ACP server using Python SDK
 - Support `initialize`, `session/new`, `session/prompt`
 - Test with Zed editor
 - Document configuration
 
-**Phase 2: Streaming & Tools (2-3 sprints)**
+**Phase 2: Streaming & Tools**
 - Add streaming support via `session/update`
 - Integrate MCP tool passthrough
 - Add file system operations
 - Implement permission requests
 
-**Phase 3: Multi-Agent UX (2-3 sprints)**
+**Phase 3: Multi-Agent UX**
 - Add agent selection via slash commands
 - Implement session modes
 - Add smart routing
 - Polish documentation
 
-**Phase 4: Distribution (1-2 sprints)**
+**Phase 4: Distribution**
 - Package as Zed extension
 - Create Neovim plugin documentation
 - Submit to registries
