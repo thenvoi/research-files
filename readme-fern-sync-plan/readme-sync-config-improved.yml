@@ -1,0 +1,395 @@
+# README Sync Configuration - Improved Version
+# Generated: 2025-01-07
+#
+# This configuration was created after rigorous analysis of:
+# - Fern docs.yml navigation structure (dev branch)
+# - All target repository READMEs
+# - Content overlap between Fern pages and READMEs
+#
+# Key improvements over previous config:
+# 1. Corrected extraction markers (emoji headers, exact text match)
+# 2. Better page splits based on actual README structure
+# 3. Added sync_mode to indicate whether to replace or supplement Fern content
+# 4. Fixed repository name for phoenix-channels-python-client
+# 5. More granular SDK extraction for Docker and Utilities
+#
+# Extraction rules:
+#   extract: all                           - Include entire README
+#   extract:
+#     start: "## Section Header"           - Start marker (inclusive)
+#     end: "## Next Section"               - End marker (exclusive)
+#   extract:
+#     lines: [10, 50]                       - Line range (1-indexed, inclusive)
+#
+# Sync modes:
+#   sync_mode: replace   - README content replaces Fern page
+#   sync_mode: append    - README content appended after Fern content
+#   sync_mode: reference - Only add "See README" link, don't sync content
+
+repositories:
+  # ============================================================================
+  # Thenvoi MCP Server
+  # ============================================================================
+  # High-value sync targets:
+  # - IDE Setup (more detail than Fern)
+  # - Available Tools (has Agent/Human API distinction Fern lacks)
+  # - Troubleshooting (comprehensive error solutions)
+  #
+  # Skip: Development, Resources, License (developer/meta content)
+  # ============================================================================
+  - owner: thenvoi
+    repo: thenvoi-mcp
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/mcp/synced
+    pages:
+      # Page 1: Overview with Features
+      # Note: Fern overview is well-structured, so this supplements it
+      - filename: features.mdx
+        title: "MCP Features"
+        subtitle: "Comprehensive feature list"
+        sync_mode: reference
+        extract:
+          start: "# Thenvoi MCP Server"
+          end: "## 🚀 Quick Start"
+
+      # Page 2: Quick Start
+      # Includes prerequisites and basic installation
+      - filename: quick-start.mdx
+        title: "Quick Start"
+        subtitle: "Prerequisites and installation"
+        sync_mode: append
+        extract:
+          start: "## 🚀 Quick Start"
+          end: "## 📦 Install in Your IDE"
+
+      # Page 3: IDE Integration (HIGH VALUE - More detail than Fern)
+      # Covers: Cursor, Claude Desktop, Claude Code, STDIO, SSE Transport
+      - filename: ide-setup.mdx
+        title: "IDE Integration"
+        subtitle: "Configure Cursor, Claude Desktop, Claude Code, and more"
+        sync_mode: replace
+        extract:
+          start: "## 📦 Install in Your IDE"
+          end: "## 🔨 Available Tools"
+
+      # Page 4: Available Tools (HIGH VALUE - Fern lacks Agent/Human split)
+      # README has comprehensive tool tables with descriptions
+      - filename: tools-reference.mdx
+        title: "Tools Reference"
+        subtitle: "Agent API and Human API tool documentation"
+        sync_mode: replace
+        extract:
+          start: "## 🔨 Available Tools"
+          end: "## 💡 Usage Examples"
+
+      # Page 5: Usage Examples
+      # LangGraph and LangChain integration examples
+      - filename: agent-examples.mdx
+        title: "Agent Framework Examples"
+        subtitle: "LangGraph and LangChain integration"
+        sync_mode: append
+        extract:
+          start: "## 💡 Usage Examples"
+          end: "## ⚙️ Configuration"
+
+      # Page 6: Configuration + Troubleshooting (combined)
+      # Practical reference for environment variables and common issues
+      - filename: configuration.mdx
+        title: "Configuration & Troubleshooting"
+        subtitle: "Environment variables and common issues"
+        sync_mode: replace
+        extract:
+          start: "## ⚙️ Configuration"
+          end: "## 💻 Development"
+
+  # ============================================================================
+  # Thenvoi Python SDK
+  # ============================================================================
+  # High-value sync targets:
+  # - Creating External Agents (more detail than Fern Setup)
+  # - Docker Usage (not in Fern at all)
+  # - LangGraph Utilities (not in Fern at all)
+  #
+  # Reference only: Framework-specific usage (Fern tutorials are better)
+  # Skip: Development, Context7 (developer/external content)
+  # ============================================================================
+  - owner: thenvoi
+    repo: thenvoi-sdk-python
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/sdks/synced
+    pages:
+      # Page 1: Quick Start snippet
+      # Brief overview with code example
+      - filename: quick-start-snippet.mdx
+        title: "Quick Start"
+        subtitle: "Get running in 30 seconds"
+        sync_mode: append
+        extract:
+          start: "# Thenvoi Python SDK"
+          end: "## Prerequisites"
+
+      # Page 2: Installation (combined Prerequisites + Installation)
+      - filename: installation.mdx
+        title: "Installation"
+        subtitle: "Prerequisites and package installation"
+        sync_mode: append
+        extract:
+          start: "## Prerequisites"
+          end: "## Creating External Agents on Thenvoi Platform"
+
+      # Page 3: Creating External Agents (HIGH VALUE)
+      # More detailed than Fern Setup page
+      - filename: creating-agents.mdx
+        title: "Creating External Agents"
+        subtitle: "Platform setup and credential management"
+        sync_mode: replace
+        extract:
+          start: "## Creating External Agents on Thenvoi Platform"
+          end: "## Usage by Framework"
+
+      # Page 4: Framework Usage (reference only - Fern tutorials are better)
+      # Just link to this for additional examples
+      - filename: framework-usage.mdx
+        title: "Framework Usage Examples"
+        subtitle: "LangGraph, Pydantic AI, Anthropic, Claude SDK"
+        sync_mode: reference
+        extract:
+          start: "## Usage by Framework"
+          end: "## Package Structure"
+
+      # Page 5: Examples Overview
+      # Detailed example tables per framework
+      - filename: examples-overview.mdx
+        title: "Examples Overview"
+        subtitle: "Complete example index with descriptions"
+        sync_mode: append
+        extract:
+          start: "## Examples Overview"
+          end: "## Running Examples"
+
+      # Page 6: Running Examples + Docker Usage (combined)
+      # Practical guide for running locally and in Docker
+      - filename: running-examples.mdx
+        title: "Running Examples"
+        subtitle: "Local and Docker execution"
+        sync_mode: replace
+        extract:
+          start: "## Running Examples"
+          end: "## Configuration"
+
+      # Page 7: LangGraph Utilities (NEW - not in Fern)
+      # graph_as_tool and langchain tool conversion
+      - filename: langgraph-utilities.mdx
+        title: "LangGraph Utilities"
+        subtitle: "graph_as_tool and tool conversion utilities"
+        sync_mode: replace
+        extract:
+          start: "## LangGraph Utilities"
+          end: "## Platform Tools"
+
+      # Page 8: Platform Tools
+      # Tools exposed to agents
+      - filename: platform-tools.mdx
+        title: "Platform Tools"
+        subtitle: "Built-in platform capabilities"
+        sync_mode: append
+        extract:
+          start: "## Platform Tools"
+          end: "## Context7 MCP"
+
+  # ============================================================================
+  # Phoenix Channels Python Client
+  # ============================================================================
+  # NOTE: No Fern pages exist for this. Creating new section.
+  # The README is relatively short (243 lines), could be 2-3 pages.
+  #
+  # Recommended Fern navigation:
+  #   Integrations > Phoenix Channels
+  #     ├── Overview
+  #     └── Usage Guide
+  # ============================================================================
+  - owner: thenvoi
+    repo: phoenix-channels-python-client  # Note: NOT -alpha
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/phoenix/synced
+    pages:
+      # Page 1: Overview (Introduction + Prerequisites + Installation)
+      - filename: overview.mdx
+        title: "Phoenix Channels Client"
+        subtitle: "Async Python client for Phoenix Channels"
+        sync_mode: replace
+        extract:
+          start: "# Phoenix Channels Python Client"
+          end: "## Quick Start"
+
+      # Page 2: Quick Start
+      - filename: quick-start.mdx
+        title: "Quick Start"
+        subtitle: "Connect to Phoenix in minutes"
+        sync_mode: replace
+        extract:
+          start: "## Quick Start"
+          end: "## Phoenix System Events"
+
+      # Page 3: Usage Guide (comprehensive)
+      # Events, Protocol Versions, Examples, Handlers, Unsubscribing
+      - filename: usage-guide.mdx
+        title: "Usage Guide"
+        subtitle: "Events, handlers, and protocol versions"
+        sync_mode: replace
+        extract:
+          start: "## Phoenix System Events"
+          end: "## Contributing"
+
+  # ============================================================================
+  # n8n Nodes Integration (Private Repository)
+  # ============================================================================
+  # NOTE: No Fern pages exist for this. Creating new section.
+  # Requires PAT with repo scope for private access.
+  #
+  # The README is long (472 lines) but Development section is skippable.
+  # Focus on: Overview, Features, Installation, Usage
+  #
+  # Recommended Fern navigation:
+  #   Integrations > n8n
+  #     ├── Overview
+  #     ├── AI Agent Node
+  #     └── Trigger Node
+  # ============================================================================
+  - owner: thenvoi
+    repo: n8n-nodes-thenvoi
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/n8n/synced
+    private: true
+    pages:
+      # Page 1: Overview (includes banner and overview section)
+      - filename: overview.mdx
+        title: "n8n Integration"
+        subtitle: "Custom n8n nodes for Thenvoi"
+        sync_mode: replace
+        extract:
+          start: "# Thenvoi n8n Nodes"
+          end: "## Features"
+
+      # Page 2: Features
+      # Detailed capabilities of AI Agent and Trigger nodes
+      - filename: features.mdx
+        title: "Features"
+        subtitle: "AI Agent and Trigger node capabilities"
+        sync_mode: replace
+        extract:
+          start: "## Features"
+          end: "## Installation"
+
+      # Page 3: Installation
+      - filename: installation.mdx
+        title: "Installation"
+        subtitle: "Install nodes in your n8n instance"
+        sync_mode: replace
+        extract:
+          start: "## Installation"
+          end: "## Usage"
+
+      # Page 4: Usage (main documentation - very detailed)
+      # Credentials, AI Agent setup, Trigger setup
+      # This is the most valuable section
+      - filename: usage-guide.mdx
+        title: "Usage Guide"
+        subtitle: "Complete guide to using Thenvoi nodes"
+        sync_mode: replace
+        extract:
+          start: "## Usage"
+          end: "# Development"  # Note: Development is H1, not H2
+
+# ==============================================================================
+# Global Defaults
+# ==============================================================================
+defaults:
+  # Frontmatter template for generated MDX files
+  frontmatter_template: |
+    ---
+    title: "{title}"
+    subtitle: "{subtitle}"
+    description: "Auto-synced from {repo} repository"
+    ---
+
+  # Notice added at the top of each synced page
+  notice: |
+    <Note>
+    This page is auto-synced from the [{repo}](https://github.com/{owner}/{repo}) repository.
+    For the most up-to-date information, see the [README on GitHub](https://github.com/{owner}/{repo}#readme).
+    </Note>
+
+  # Transform rules applied to all content
+  transforms:
+    # Convert GitHub-flavored markdown to MDX
+    - type: replace_pattern
+      pattern: "<details>"
+      replacement: "<Accordion>"
+    - type: replace_pattern
+      pattern: "</details>"
+      replacement: "</Accordion>"
+    - type: replace_pattern
+      pattern: "<summary>"
+      replacement: '<Accordion title="'
+    - type: replace_pattern
+      pattern: "</summary>"
+      replacement: '">'
+    # Convert relative image paths to absolute GitHub URLs
+    - type: image_urls
+      base_url: "https://raw.githubusercontent.com/{owner}/{repo}/main/"
+    # Strip emoji from headers for cleaner navigation
+    - type: strip_emoji_from_headers
+      enabled: true
+
+# ==============================================================================
+# Navigation Suggestions
+# ==============================================================================
+# Add to fern/docs.yml under Integrations section:
+#
+# - section: MCP
+#   contents:
+#     - page: MCP Overview
+#       path: docs/pages/integrations/mcp/overview.mdx
+#     - page: AI Assistant Setup
+#       path: docs/pages/integrations/mcp/ai-assistant-setup.mdx
+#     - page: IDE Integration                                    # FROM SYNC
+#       path: docs/pages/integrations/mcp/synced/ide-setup.mdx
+#     - page: External Agent Setup
+#       path: docs/pages/integrations/mcp/external-agents.mdx
+#     - page: Tools Reference                                    # FROM SYNC
+#       path: docs/pages/integrations/mcp/synced/tools-reference.mdx
+#
+# - section: SDKs
+#   contents:
+#     - page: Overview
+#       path: docs/pages/integrations/sdks/overview.mdx
+#     - page: Creating External Agents                           # FROM SYNC
+#       path: docs/pages/integrations/sdks/synced/creating-agents.mdx
+#     - section: Tutorials
+#       contents:
+#         - ... (existing tutorials)
+#     - page: Docker Usage                                       # FROM SYNC
+#       path: docs/pages/integrations/sdks/synced/running-examples.mdx
+#     - page: LangGraph Utilities                                # FROM SYNC
+#       path: docs/pages/integrations/sdks/synced/langgraph-utilities.mdx
+#
+# - section: Phoenix Channels                                    # NEW SECTION
+#   contents:
+#     - page: Overview
+#       path: docs/pages/integrations/phoenix/synced/overview.mdx
+#     - page: Quick Start
+#       path: docs/pages/integrations/phoenix/synced/quick-start.mdx
+#     - page: Usage Guide
+#       path: docs/pages/integrations/phoenix/synced/usage-guide.mdx
+#
+# - section: n8n Integration                                     # NEW SECTION
+#   contents:
+#     - page: Overview
+#       path: docs/pages/integrations/n8n/synced/overview.mdx
+#     - page: Features
+#       path: docs/pages/integrations/n8n/synced/features.mdx
+#     - page: Installation
+#       path: docs/pages/integrations/n8n/synced/installation.mdx
+#     - page: Usage Guide
+#       path: docs/pages/integrations/n8n/synced/usage-guide.mdx

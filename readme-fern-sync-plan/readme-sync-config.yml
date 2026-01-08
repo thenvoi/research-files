@@ -1,0 +1,179 @@
+# README Sync Configuration
+# This file defines which repositories to sync and how to extract pages from their READMEs.
+#
+# Extraction rules:
+#   extract: all                           - Include entire README
+#   extract:
+#     start: "## Section Header"           - Start marker (inclusive)
+#     end: "## Next Section"               - End marker (exclusive)
+#   extract:
+#     lines: [10, 50]                      - Line range (1-indexed, inclusive)
+#
+# Each page can have custom frontmatter fields.
+
+repositories:
+  # Thenvoi MCP Server - AI Assistant Integration
+  - owner: thenvoi
+    repo: thenvoi-mcp
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/mcp/synced
+    pages:
+      - filename: overview.mdx
+        title: "Thenvoi MCP Overview"
+        subtitle: "Connect AI assistants to Thenvoi"
+        extract:
+          start: "# Thenvoi MCP Server"
+          end: "## 🚀 Quick Start"
+
+      - filename: quick-start.mdx
+        title: "Quick Start"
+        subtitle: "Get up and running in minutes"
+        extract:
+          start: "## 🚀 Quick Start"
+          end: "## 📦 Install in Your IDE"
+
+      - filename: ide-setup.mdx
+        title: "IDE Integration"
+        subtitle: "Configure Cursor, Claude Desktop, and VS Code"
+        extract:
+          start: "## 📦 Install in Your IDE"
+          end: "## 🔨 Available Tools"
+
+      - filename: tools-reference.mdx
+        title: "Available Tools"
+        subtitle: "Agent and Human API tool reference"
+        extract:
+          start: "## 🔨 Available Tools"
+          end: "## 💡 Usage Examples"
+
+      - filename: examples.mdx
+        title: "Usage Examples"
+        subtitle: "LangGraph and LangChain integration examples"
+        extract:
+          start: "## 💡 Usage Examples"
+          end: "## ⚙️ Configuration"
+
+      - filename: configuration.mdx
+        title: "Configuration"
+        subtitle: "Environment variables and settings"
+        extract:
+          start: "## ⚙️ Configuration"
+          end: "## 🚨 Troubleshooting"
+
+      - filename: troubleshooting.mdx
+        title: "Troubleshooting"
+        subtitle: "Common issues and solutions"
+        extract:
+          start: "## 🚨 Troubleshooting"
+          end: "## 💻 Development"
+
+  # Thenvoi Python SDK - External Agent Integration
+  - owner: thenvoi
+    repo: thenvoi-sdk-python
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/sdks/synced
+    pages:
+      - filename: overview.mdx
+        title: "Python SDK Overview"
+        subtitle: "Connect external AI agents to Thenvoi"
+        extract:
+          start: "# Thenvoi Python SDK"
+          end: "## Prerequisites"
+
+      - filename: installation.mdx
+        title: "Installation"
+        subtitle: "Prerequisites and setup instructions"
+        extract:
+          start: "## Prerequisites"
+          end: "## Creating External Agents on Thenvoi Platform"
+
+      - filename: creating-agents.mdx
+        title: "Creating External Agents"
+        subtitle: "Register agents on the Thenvoi platform"
+        extract:
+          start: "## Creating External Agents on Thenvoi Platform"
+          end: "## Package Structure"
+
+      - filename: running-examples.mdx
+        title: "Running Examples"
+        subtitle: "Docker and local usage examples"
+        extract:
+          start: "## Docker Usage"
+          end: "## Development"
+
+  # Phoenix Channels Python Client
+  - owner: thenvoi
+    repo: phoenix-channels-python-client-alpha
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/phoenix/synced
+    pages:
+      - filename: overview.mdx
+        title: "Phoenix Channels Client"
+        subtitle: "Async Python client for Phoenix Channels"
+        extract:
+          start: "# Phoenix Channels Python Client"
+          end: "## Prerequisites"
+
+      - filename: getting-started.mdx
+        title: "Getting Started"
+        subtitle: "Installation and quick start guide"
+        extract:
+          start: "## Prerequisites"
+          end: "## Phoenix System Events"
+
+      - filename: usage.mdx
+        title: "Usage Guide"
+        subtitle: "Event handlers, subscriptions, and examples"
+        extract:
+          start: "## Phoenix System Events"
+          end: "## Contributing"
+
+  # n8n Nodes Integration (Private Repo)
+  - owner: thenvoi
+    repo: n8n-nodes-thenvoi
+    readme_path: README.md
+    output_dir: fern/docs/pages/integrations/n8n/synced
+    private: true
+    pages:
+      - filename: overview.mdx
+        title: "n8n Integration"
+        subtitle: "Custom n8n nodes for Thenvoi"
+        extract:
+          start: "# Thenvoi n8n Nodes"
+          end: "## Features"
+
+      - filename: features.mdx
+        title: "Features"
+        subtitle: "AI Agent and Trigger node capabilities"
+        extract:
+          start: "## Features"
+          end: "## Installation"
+
+      - filename: installation.mdx
+        title: "Installation"
+        subtitle: "Install and configure n8n nodes"
+        extract:
+          start: "## Installation"
+          end: "## Usage"
+
+      - filename: usage.mdx
+        title: "Usage Guide"
+        subtitle: "Setting up credentials and using nodes"
+        extract:
+          start: "## Usage"
+          end: null  # Until end of file
+
+defaults:
+  frontmatter_template: |
+    ---
+    title: "{title}"
+    subtitle: "{subtitle}"
+    description: "Auto-synced from {repo} repository"
+    ---
+
+  # Add a notice at the top of each synced page
+  notice: |
+    <Note>
+    This page is auto-synced from the [{repo}](https://github.com/{owner}/{repo}) repository.
+    For the most up-to-date information, see the [README on GitHub](https://github.com/{owner}/{repo}#readme).
+    </Note>
